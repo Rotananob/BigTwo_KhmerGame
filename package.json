@@ -1,0 +1,22 @@
+{
+  "name": "big-two-multiplayer",
+  "version": "1.0.0",
+  "description": "Professional 4-player Big Two online card game with authentic rules and real-time multiplayer",
+  "private": true,
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "start": "node server/dist/server.js",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "build:client": "npm --prefix client run build",
+    "build:server": "npm --prefix server run build",
+    "build": "npm run build:server && npm run build:client",
+    "test": "npm --prefix server test"
+  },
+  "keywords": ["big-two", "cho-dai-di", "poker", "card-game", "multiplayer", "socket-io", "react"],
+  "author": "Autonomous Engineering Organization",
+  "license": "MIT"
+}
