@@ -61,6 +61,7 @@ export interface GameStatePublic {
   isFreeLead: boolean;
   isFirstTrickOfGame: boolean;
   winnerSeatIndex: number | null;
+  turnDeadline: number | null;
   players: (PlayerPublicInfo | null)[];
   scores: Record<string, number>;
   roundSummary?: RoundSummary;

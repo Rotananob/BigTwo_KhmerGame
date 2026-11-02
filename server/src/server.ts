@@ -259,5 +259,5 @@ io.on('connection', (socket) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`🚀 Big Two Game Server listening on port ${PORT}`);
+  console.log(`[Server] Big Two Game Server listening on port ${PORT}`);
 });

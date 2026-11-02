@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Crown, Layers, UserPlus } from 'lucide-react';
 import { PlayerPublicInfo } from '@shared/types';
 import { CardView } from './CardView';
 import { AvatarIcon } from './AvatarIcon';
 import { useGame } from '../context/GameContext';
+import { sound } from '../utils/audio';
 
 interface PlayerSeatProps {
   player: PlayerPublicInfo | null;
@@ -12,6 +13,7 @@ interface PlayerSeatProps {
   isCurrentTurn: boolean;
   isHost: boolean;
   score: number;
+  turnDeadline?: number | null;
 }
 
 export const PlayerSeat: React.FC<PlayerSeatProps> = ({
@@ -20,8 +22,33 @@ export const PlayerSeat: React.FC<PlayerSeatProps> = ({
   isCurrentTurn,
   isHost,
   score,
+  turnDeadline,
 }) => {
   const { t } = useGame();
+  const [secondsRemaining, setSecondsRemaining] = useState<number | null>(null);
+
+  const isBottom = position === 'bottom';
+
+  useEffect(() => {
+    if (!isCurrentTurn || !turnDeadline) {
+      setSecondsRemaining(null);
+      return;
+    }
+
+    let lastSec: number | null = null;
+    const update = () => {
+      const diff = Math.max(0, Math.ceil((turnDeadline - Date.now()) / 1000));
+      setSecondsRemaining(diff);
+      if (isBottom && diff <= 5 && diff > 0 && diff !== lastSec) {
+        lastSec = diff;
+        sound.playCountdownTick();
+      }
+    };
+
+    update();
+    const interval = setInterval(update, 500);
+    return () => clearInterval(interval);
+  }, [isCurrentTurn, turnDeadline, isBottom]);
 
   if (!player) {
     return (
@@ -33,8 +60,6 @@ export const PlayerSeat: React.FC<PlayerSeatProps> = ({
       </div>
     );
   }
-
-  const isBottom = position === 'bottom';
 
   return (
     <div
@@ -60,6 +85,19 @@ export const PlayerSeat: React.FC<PlayerSeatProps> = ({
             className="rounded-2xl"
           />
         </div>
+
+        {/* Turn Countdown Badge */}
+        {isCurrentTurn && secondsRemaining !== null && (
+          <div
+            className={`absolute -top-3 inset-x-0 mx-auto w-fit px-2 py-0.5 rounded-full text-[10px] font-black shadow-lg flex items-center justify-center z-20 ${
+              secondsRemaining <= 5
+                ? 'bg-red-600 text-white animate-bounce'
+                : 'bg-amber-500 text-slate-950 animate-pulse'
+            }`}
+          >
+            <span>{secondsRemaining}s</span>
+          </div>
+        )}
 
         {/* Host Crown Icon (Vector) */}
         {isHost && (

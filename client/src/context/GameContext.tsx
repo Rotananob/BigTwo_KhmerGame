@@ -44,6 +44,7 @@ interface GameContextType {
   toggleBotFill: (fill: boolean) => void;
   startGame: () => void;
   toggleCardSelect: (cardId: string) => void;
+  selectCards: (cardIds: string[]) => void;
   clearSelection: () => void;
   playSelectedCards: () => void;
   passCurrentTurn: () => void;
@@ -108,7 +109,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const fallbackUser: UserProfile = {
             id: `guest-${Math.random().toString(36).substring(2, 9)}`,
             username: `Player_${Math.floor(1000 + Math.random() * 9000)}`,
-            avatar: '👤',
+            avatar: 'user',
             isGuest: true,
           };
           setUserState(fallbackUser);
@@ -265,6 +266,10 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setSelectedCardIds([]);
   };
 
+  const selectCards = (cardIds: string[]) => {
+    setSelectedCardIds(cardIds);
+  };
+
   const playSelectedCards = () => {
     if (!socket || selectedCardIds.length === 0) return;
     socket.emit('play_cards', selectedCardIds);
@@ -348,6 +353,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         toggleBotFill,
         startGame,
         toggleCardSelect,
+        selectCards,
         clearSelection,
         playSelectedCards,
         passCurrentTurn,

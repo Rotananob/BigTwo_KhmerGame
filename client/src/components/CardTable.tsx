@@ -21,6 +21,8 @@ import { useGame } from '../context/GameContext';
 import { CardView } from './CardView';
 import { PlayerSeat } from './PlayerSeat';
 import { ScoreModal } from './ScoreModal';
+import { generateCandidateCombinations } from '@shared/ai';
+import { sound } from '../utils/audio';
 
 interface CardTableProps {
   onOpenRules: () => void;
@@ -42,6 +44,7 @@ export const CardTable: React.FC<CardTableProps> = ({ onOpenRules }) => {
     setLang,
     t,
     toggleCardSelect,
+    selectCards,
     clearSelection,
     playSelectedCards,
     passCurrentTurn,
@@ -58,6 +61,43 @@ export const CardTable: React.FC<CardTableProps> = ({ onOpenRules }) => {
   const [copied, setCopied] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [chatInput, setChatInput] = useState('');
+  const [localToast, setLocalToast] = useState<string | null>(null);
+  const [combCycle, setCombCycle] = useState<{ type: string; index: number }>({ type: '', index: 0 });
+
+  const showLocalToast = (msg: string) => {
+    setLocalToast(msg);
+    setTimeout(() => setLocalToast(null), 2500);
+  };
+
+  const cycleCombinations = (category: 'PAIR' | 'TRIPLE' | 'FIVE') => {
+    const candidates = generateCandidateCombinations(myHand);
+    let filtered: typeof candidates = [];
+
+    if (category === 'PAIR') {
+      filtered = candidates.filter((c) => c.type === 'PAIR');
+      if (filtered.length === 0) {
+        showLocalToast(t.noPairsInHand);
+        return;
+      }
+    } else if (category === 'TRIPLE') {
+      filtered = candidates.filter((c) => c.type === 'TRIPLE');
+      if (filtered.length === 0) {
+        showLocalToast(t.noTriplesInHand);
+        return;
+      }
+    } else if (category === 'FIVE') {
+      filtered = candidates.filter((c) => c.cards.length === 5);
+      if (filtered.length === 0) {
+        showLocalToast(t.noFiveCardsInHand);
+        return;
+      }
+    }
+
+    const nextIndex = (combCycle.type === category ? combCycle.index + 1 : 0) % filtered.length;
+    setCombCycle({ type: category, index: nextIndex });
+    selectCards(filtered[nextIndex].cards.map((c) => c.id));
+    sound.playCardSelect();
+  };
 
   const copyRoomCode = () => {
     if (gameState?.roomCode) {
@@ -202,10 +242,10 @@ export const CardTable: React.FC<CardTableProps> = ({ onOpenRules }) => {
 
       {/* Main Table Felt Stage */}
       <main className="relative flex-1 flex items-center justify-center p-2 sm:p-6">
-        {/* Error Toast Notification */}
-        {errorToast && (
-          <div className="absolute top-4 z-40 px-4 py-2 rounded-2xl bg-red-600 text-white font-semibold text-xs sm:text-sm shadow-xl animate-in slide-in-from-top duration-200">
-            {errorToast}
+        {/* Toast Notification */}
+        {(errorToast || localToast) && (
+          <div className="absolute top-4 z-40 px-4 py-2 rounded-2xl bg-amber-600 text-white font-semibold text-xs sm:text-sm shadow-xl animate-in slide-in-from-top duration-200">
+            {errorToast || localToast}
           </div>
         )}
 
@@ -220,6 +260,7 @@ export const CardTable: React.FC<CardTableProps> = ({ onOpenRules }) => {
               isCurrentTurn={relativeSeats.top.isCurrentTurn}
               isHost={relativeSeats.top.seatIndex === 0}
               score={relativeSeats.top.score}
+              turnDeadline={gameState?.turnDeadline}
             />
           </div>
 
@@ -233,6 +274,7 @@ export const CardTable: React.FC<CardTableProps> = ({ onOpenRules }) => {
               isCurrentTurn={relativeSeats.left.isCurrentTurn}
               isHost={relativeSeats.left.seatIndex === 0}
               score={relativeSeats.left.score}
+              turnDeadline={gameState?.turnDeadline}
             />
 
             {/* Central Table Trick Area */}
@@ -318,6 +360,7 @@ export const CardTable: React.FC<CardTableProps> = ({ onOpenRules }) => {
               isCurrentTurn={relativeSeats.right.isCurrentTurn}
               isHost={relativeSeats.right.seatIndex === 0}
               score={relativeSeats.right.score}
+              turnDeadline={gameState?.turnDeadline}
             />
           </div>
 
@@ -330,6 +373,7 @@ export const CardTable: React.FC<CardTableProps> = ({ onOpenRules }) => {
               isCurrentTurn={relativeSeats.bottom.isCurrentTurn}
               isHost={relativeSeats.bottom.seatIndex === 0}
               score={relativeSeats.bottom.score}
+              turnDeadline={gameState?.turnDeadline}
             />
           </div>
         </div>
@@ -443,22 +487,43 @@ export const CardTable: React.FC<CardTableProps> = ({ onOpenRules }) => {
             )}
           </div>
 
-          {/* Sort & Clear buttons */}
-          <div className="flex items-center space-x-2">
+          {/* Smart Combination Quick Selectors & Sort */}
+          <div className="flex items-center space-x-1.5 flex-wrap gap-1">
+            <button
+              onClick={() => cycleCombinations('PAIR')}
+              className="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] text-amber-300 border border-slate-700 font-semibold transition-all active:scale-95"
+              title="Cycle Pairs in hand"
+            >
+              {t.filterPairs}
+            </button>
+            <button
+              onClick={() => cycleCombinations('TRIPLE')}
+              className="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] text-amber-300 border border-slate-700 font-semibold transition-all active:scale-95"
+              title="Cycle Triples in hand"
+            >
+              {t.filterTriples}
+            </button>
+            <button
+              onClick={() => cycleCombinations('FIVE')}
+              className="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] text-amber-300 border border-slate-700 font-semibold transition-all active:scale-95"
+              title="Cycle 5-Card hands"
+            >
+              {t.filterFiveCard}
+            </button>
             <button
               onClick={toggleSort}
-              className="flex items-center space-x-1 px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-all font-medium"
+              className="flex items-center space-x-1 px-2.5 py-0.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] text-slate-300 transition-all font-medium"
               title="Toggle Sorting"
             >
-              <ArrowUpDown className="w-3.5 h-3.5" />
+              <ArrowUpDown className="w-3 h-3" />
               <span>{sortBy === 'rank' ? t.sortRank : t.sortSuit}</span>
             </button>
             {selectedCardIds.length > 0 && (
               <button
                 onClick={clearSelection}
-                className="flex items-center space-x-1 px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-all font-medium"
+                className="flex items-center space-x-1 px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] text-slate-400 hover:text-white transition-all font-medium"
               >
-                <XCircle className="w-3.5 h-3.5" />
+                <XCircle className="w-3 h-3" />
                 <span>{t.clearSelection}</span>
               </button>
             )}

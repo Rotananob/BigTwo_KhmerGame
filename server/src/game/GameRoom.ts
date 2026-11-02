@@ -49,9 +49,11 @@ export class GameRoom {
   public winnerSeatIndex: number | null = null;
   public scores: Record<string, number> = {};
   public roundSummary?: RoundSummary;
+  public turnDeadline: number | null = null;
 
   private io: Server<ClientToServerEvents, ServerToClientEvents>;
   private botTimer: NodeJS.Timeout | null = null;
+  private turnTimer: NodeJS.Timeout | null = null;
 
   constructor(
     id: string,
@@ -91,7 +93,14 @@ export class GameRoom {
     const existingIndex = this.seats.findIndex((s) => s && s.id === id);
     if (existingIndex !== -1) {
       // Reconnect
-      this.seats[existingIndex]!.socketId = socketId;
+      const player = this.seats[existingIndex]!;
+      player.socketId = socketId;
+      player.isBot = false;
+      if (player.name.endsWith(' (Bot)')) {
+        player.name = player.name.replace(' (Bot)', '');
+      }
+      this.broadcastState();
+      this.sendIndividualHands();
       return { success: true };
     }
 
@@ -237,10 +246,14 @@ export class GameRoom {
     this.broadcastState();
     this.sendIndividualHands();
 
-    // Check if first player is bot
+    // Check if first player is bot or human
     const firstPlayer = this.seats[this.currentTurnSeat];
     if (firstPlayer && firstPlayer.isBot) {
+      this.turnDeadline = null;
+      this.broadcastState();
       this.scheduleBotTurn();
+    } else if (firstPlayer) {
+      this.scheduleHumanTurn();
     }
   }
 
@@ -283,6 +296,9 @@ export class GameRoom {
     if (!validation.isValid || !validation.combination) {
       return { success: false, error: validation.errorMessage || 'Invalid move.' };
     }
+
+    this.clearTimers();
+    this.turnDeadline = null;
 
     // Move is valid! Remove cards from player hand
     const playedSet = new Set(cardIds);
@@ -330,6 +346,9 @@ export class GameRoom {
       return { success: false, error: 'Cannot pass on the very first trick of the game.' };
     }
 
+    this.clearTimers();
+    this.turnDeadline = null;
+
     player.hasPassed = true;
     this.consecutivePasses += 1;
 
@@ -361,10 +380,16 @@ export class GameRoom {
 
       this.broadcastState();
 
-      // Check if winner is bot
+      // Check if winner is bot or human
       const winnerPlayer = this.seats[trickWinnerSeat];
       if (winnerPlayer && winnerPlayer.isBot) {
+        this.turnDeadline = null;
+        this.broadcastState();
         this.scheduleBotTurn();
+      } else if (winnerPlayer) {
+        this.scheduleHumanTurn();
+      } else {
+        this.broadcastState();
       }
       return { success: true };
     }
@@ -373,19 +398,73 @@ export class GameRoom {
     return { success: true };
   }
 
-  private advanceTurn(): void {
-    this.currentTurnSeat = (this.currentTurnSeat + 1) % 4;
+  private clearTimers(): void {
+    if (this.botTimer) {
+      clearTimeout(this.botTimer);
+      this.botTimer = null;
+    }
+    if (this.turnTimer) {
+      clearTimeout(this.turnTimer);
+      this.turnTimer = null;
+    }
+  }
+
+  private scheduleHumanTurn(): void {
+    this.clearTimers();
+    const player = this.seats[this.currentTurnSeat];
+    if (!player || player.isBot || this.status !== 'PLAYING') return;
+
+    const DURATION_MS = 25000;
+    this.turnDeadline = Date.now() + DURATION_MS;
     this.broadcastState();
+
+    this.turnTimer = setTimeout(() => {
+      if (this.status !== 'PLAYING') return;
+      const curr = this.seats[this.currentTurnSeat];
+      if (!curr || curr.id !== player.id) return;
+
+      const otherCounts = this.seats
+        .filter((s) => s && s.id !== curr.id)
+        .map((s) => s!.cards.length);
+
+      const lastComb = this.lastPlay ? this.lastPlay.combination : null;
+      const move = chooseBotMove(
+        curr.cards,
+        lastComb,
+        this.isFreeLead,
+        this.isFirstTrickOfGame,
+        otherCounts
+      );
+
+      if (move) {
+        this.executePlay(curr, move.cards.map((c) => c.id));
+      } else if (!this.isFreeLead && !this.isFirstTrickOfGame) {
+        this.executePass(curr);
+      }
+    }, DURATION_MS);
+  }
+
+  private advanceTurn(): void {
+    this.clearTimers();
+    this.currentTurnSeat = (this.currentTurnSeat + 1) % 4;
     this.sendIndividualHands();
 
     const nextPlayer = this.seats[this.currentTurnSeat];
     if (nextPlayer && nextPlayer.isBot) {
+      this.turnDeadline = null;
+      this.broadcastState();
       this.scheduleBotTurn();
+    } else if (nextPlayer) {
+      this.scheduleHumanTurn();
+    } else {
+      this.turnDeadline = null;
+      this.broadcastState();
     }
   }
 
   private scheduleBotTurn(): void {
-    if (this.botTimer) clearTimeout(this.botTimer);
+    this.clearTimers();
+    this.turnDeadline = null;
 
     // Natural bot delay: 1000ms - 1400ms for realistic pacing
     this.botTimer = setTimeout(() => {
@@ -415,6 +494,8 @@ export class GameRoom {
   }
 
   private handleRoundWin(winner: RoomPlayer): void {
+    this.clearTimers();
+    this.turnDeadline = null;
     this.status = 'ROUND_OVER';
     this.winnerSeatIndex = winner.seatIndex;
 
@@ -479,6 +560,7 @@ export class GameRoom {
       isFreeLead: this.isFreeLead,
       isFirstTrickOfGame: this.isFirstTrickOfGame,
       winnerSeatIndex: this.winnerSeatIndex,
+      turnDeadline: this.turnDeadline,
       players: this.seats.map((s) =>
         s
           ? {
