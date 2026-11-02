@@ -364,10 +364,22 @@ export const CardTable: React.FC<CardTableProps> = ({ onOpenRules }) => {
               {t.quickChatThink}
             </button>
             <button
-              onClick={() => sendQuickChat('Nice move!')}
+              onClick={() => sendQuickChat(t.quickChatHurry)}
               className="px-2 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 truncate"
             >
-              Nice move!
+              {t.quickChatHurry}
+            </button>
+            <button
+              onClick={() => sendQuickChat(t.quickChatStuck)}
+              className="px-2 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 truncate"
+            >
+              {t.quickChatStuck}
+            </button>
+            <button
+              onClick={() => sendQuickChat(t.quickChatRematch)}
+              className="px-2 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 truncate"
+            >
+              {t.quickChatRematch}
             </button>
           </div>
 

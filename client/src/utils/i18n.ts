@@ -71,6 +71,9 @@ export const translations = {
     quickChatPass: 'Pass for now',
     quickChatGood: 'Good game!',
     quickChatThink: 'Let me think...',
+    quickChatHurry: 'Hurry up!',
+    quickChatStuck: 'I am stuck!',
+    quickChatRematch: 'Rematch?',
     installApp: 'Install App',
   },
   km: {
@@ -143,6 +146,9 @@ export const translations = {
     quickChatPass: 'សុំរំលងសិនហើយ',
     quickChatGood: 'លេងល្អណាស់!',
     quickChatThink: 'សុំគិតបន្តិច...',
+    quickChatHurry: 'លេងលឿនឡើង!',
+    quickChatStuck: 'ខ្ញុំជាប់បៀរហើយ!',
+    quickChatRematch: 'សុំលេងម្ដងទៀត!',
     installApp: 'ដំឡើង App (PWA)',
   },
 };
