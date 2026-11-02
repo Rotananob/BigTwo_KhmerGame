@@ -9,7 +9,7 @@ describe('Multiplayer WebSocket Real-Time Integration Test', () => {
       auth: {
         playerId: 'test-user-1',
         playerName: 'Test Player',
-        avatar: '♠️',
+        avatar: 'user',
       },
       transports: ['websocket'],
     });
@@ -34,7 +34,7 @@ describe('Multiplayer WebSocket Real-Time Integration Test', () => {
     client.emit('create_room', {
       roomName: 'Automated Test Table',
       playerName: 'Test Player',
-      avatar: '♠️',
+      avatar: 'user',
       fillBots: true,
     });
 

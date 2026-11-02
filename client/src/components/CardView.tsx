@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card } from '../../../shared/types';
-import { SUIT_NAMES, SUIT_SYMBOLS } from '../../../shared/deck';
+import { Card } from '@shared/types';
+import { SUIT_NAMES, SUIT_SYMBOLS } from '@shared/deck';
 
 interface CardViewProps {
   card?: Card;

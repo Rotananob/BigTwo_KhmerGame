@@ -14,12 +14,24 @@ build/
 out/
 coverage/
 *.log
+*.tsbuildinfo
 
-# Environment files
+# Sensitive credentials & environment files
 .env
-.env.local
-.env.*.local
-!.env.example
+.env.*
+*.pem
+*.key
+*.cert
+*.pfx
+secrets/
+credentials/
+
+# Markdown governance files (Only README.md is published to GitHub)
+*.md
+!README.md
+
+# Database data
+server/data/
 
 # OS & Editor
 .DS_Store

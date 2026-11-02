@@ -29,7 +29,7 @@ export interface RoomPlayer {
 }
 
 const BOT_NAMES = ['Bot Luna', 'Bot Titan', 'Bot Pixel', 'Bot Cipher'];
-const BOT_AVATARS = ['🤖', '👾', '🐱', '🦊'];
+const BOT_AVATARS = ['bot', 'shield', 'star', 'diamond'];
 
 export class GameRoom {
   public id: string;
@@ -81,7 +81,7 @@ export class GameRoom {
     id: string,
     socketId: string,
     name: string,
-    avatar = '👤'
+    avatar = 'user'
   ): { success: boolean; message?: string } {
     if (this.status !== 'WAITING') {
       return { success: false, message: 'Game has already started in this room.' };

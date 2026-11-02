@@ -6,11 +6,12 @@ import {
   GameStatePublic,
   HandCombination,
   ServerToClientEvents,
-} from '../../../shared/types';
-import { analyzeCombination, validatePlay } from '../../../shared/rules';
-import { sortCardsByBigTwo, sortCardsBySuit } from '../../../shared/deck';
-import { findLegalPlays } from '../../../shared/ai';
+} from '@shared/types';
+import { analyzeCombination, validatePlay } from '@shared/rules';
+import { sortCardsByBigTwo, sortCardsBySuit } from '@shared/deck';
+import { findLegalPlays } from '@shared/ai';
 import { sound } from '../utils/audio';
+import { Language, translations } from '../utils/i18n';
 
 export interface UserProfile {
   id: string;
@@ -33,6 +34,9 @@ interface GameContextType {
   errorToast: string | null;
   chatMessages: { sender: string; text: string; timestamp: number }[];
   sortBy: 'rank' | 'suit';
+  lang: Language;
+  t: typeof translations['km'];
+  setLang: (lang: Language) => void;
   setUser: (user: UserProfile) => void;
   createRoom: (roomName: string, fillBots: boolean) => void;
   joinRoom: (roomCode: string) => void;
@@ -70,6 +74,20 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [errorToast, setErrorToast] = useState<string | null>(null);
   const [chatMessages, setChatMessages] = useState<{ sender: string; text: string; timestamp: number }[]>([]);
   const [sortBy, setSortBy] = useState<'rank' | 'suit'>('rank');
+  const [lang, setLangState] = useState<Language>(() => {
+    try {
+      const savedLang = localStorage.getItem('bigtwo_lang');
+      if (savedLang === 'en' || savedLang === 'km') return savedLang;
+    } catch {}
+    return 'km'; // Default to Khmer as requested!
+  });
+
+  const setLang = (newLang: Language) => {
+    setLangState(newLang);
+    localStorage.setItem('bigtwo_lang', newLang);
+  };
+
+  const t = useMemo(() => translations[lang], [lang]);
 
   // Load or generate guest account on mount
   useEffect(() => {
@@ -320,6 +338,9 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         errorToast,
         chatMessages,
         sortBy,
+        lang,
+        t,
+        setLang,
         setUser,
         createRoom,
         joinRoom,

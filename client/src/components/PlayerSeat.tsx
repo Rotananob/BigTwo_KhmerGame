@@ -1,6 +1,9 @@
 import React from 'react';
-import { PlayerPublicInfo } from '../../../shared/types';
+import { Crown, Layers, UserPlus } from 'lucide-react';
+import { PlayerPublicInfo } from '@shared/types';
 import { CardView } from './CardView';
+import { AvatarIcon } from './AvatarIcon';
+import { useGame } from '../context/GameContext';
 
 interface PlayerSeatProps {
   player: PlayerPublicInfo | null;
@@ -18,13 +21,15 @@ export const PlayerSeat: React.FC<PlayerSeatProps> = ({
   isHost,
   score,
 }) => {
+  const { t } = useGame();
+
   if (!player) {
     return (
       <div
-        className={`flex flex-col items-center justify-center p-3 rounded-2xl border-2 border-dashed border-white/10 bg-black/20 text-slate-500 text-xs w-28 h-28 sm:w-32 sm:h-32 transition-all`}
+        className={`flex flex-col items-center justify-center p-3 rounded-2xl border-2 border-dashed border-slate-700/60 bg-slate-900/40 text-slate-500 text-xs w-28 h-28 sm:w-32 sm:h-32 transition-all`}
       >
-        <span className="text-2xl mb-1 opacity-40">🪑</span>
-        <span>Empty Seat</span>
+        <UserPlus className="w-6 h-6 mb-1 text-slate-600" />
+        <span className="font-medium text-slate-400">{t.emptySeat}</span>
       </div>
     );
   }
@@ -41,37 +46,44 @@ export const PlayerSeat: React.FC<PlayerSeatProps> = ({
       <div className="relative">
         <div
           className={`
-            w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center text-2xl sm:text-3xl shadow-xl transition-all duration-300
+            rounded-2xl transition-all duration-300
             ${
               isCurrentTurn
-                ? 'bg-gradient-to-tr from-amber-500 to-yellow-400 ring-4 ring-amber-400 ring-offset-2 ring-offset-slate-900 animate-pulse scale-105'
-                : 'bg-slate-800 border-2 border-slate-700/80 text-white'
+                ? 'ring-4 ring-amber-400 ring-offset-2 ring-offset-slate-900 animate-pulse scale-105 shadow-xl'
+                : 'shadow-md'
             }
           `}
         >
-          {player.avatar || '👤'}
+          <AvatarIcon
+            type={player.avatar || 'user'}
+            size={isBottom ? 'lg' : 'md'}
+            className="rounded-2xl"
+          />
         </div>
 
-        {/* Host Crown */}
+        {/* Host Crown Icon (Vector) */}
         {isHost && (
-          <span className="absolute -top-2.5 -right-2 text-base" title="Room Host">
-            👑
-          </span>
+          <div
+            className="absolute -top-2.5 -right-2 p-1 rounded-full bg-amber-500 text-slate-950 shadow-md"
+            title={t.hostTitle}
+          >
+            <Crown className="w-3.5 h-3.5" />
+          </div>
         )}
 
         {/* Card Count Badge (For other players) */}
         {!isBottom && (
           <div className="absolute -bottom-2 inset-x-0 mx-auto w-fit px-2 py-0.5 rounded-full bg-slate-950/90 border border-slate-700 text-[10px] font-bold text-amber-300 shadow flex items-center space-x-1">
-            <span>🂠</span>
+            <Layers className="w-3 h-3 text-amber-400" />
             <span>{player.cardCount}</span>
           </div>
         )}
 
         {/* Passed Status Banner */}
         {player.hasPassed && (
-          <div className="absolute inset-0 bg-black/70 rounded-2xl backdrop-blur-xs flex items-center justify-center z-10 animate-in fade-in">
+          <div className="absolute inset-0 bg-slate-950/80 rounded-2xl backdrop-blur-xs flex items-center justify-center z-10 animate-in fade-in">
             <span className="text-[10px] sm:text-xs font-black uppercase text-red-400 tracking-wider">
-              PASSED
+              {t.passed}
             </span>
           </div>
         )}
@@ -85,7 +97,7 @@ export const PlayerSeat: React.FC<PlayerSeatProps> = ({
           </span>
           {player.isBot && (
             <span className="text-[9px] font-bold px-1 rounded bg-blue-900/60 text-blue-300 border border-blue-500/30">
-              BOT
+              {t.botBadge}
             </span>
           )}
         </div>
@@ -93,7 +105,7 @@ export const PlayerSeat: React.FC<PlayerSeatProps> = ({
         <div className="flex items-center space-x-2 text-[11px] text-slate-400">
           <span>{score} pts</span>
           {player.isReady && (
-            <span className="text-emerald-400 font-semibold">• Ready</span>
+            <span className="text-emerald-400 font-semibold">• {t.markReady}</span>
           )}
         </div>
       </div>

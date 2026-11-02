@@ -50,7 +50,7 @@ app.post('/api/auth/guest', (req, res) => {
   const user: UserRecord = {
     id,
     username: name,
-    avatar: avatar || '👤',
+    avatar: avatar || 'spade',
     isGuest: true,
     gamesPlayed: 0,
     gamesWon: 0,
@@ -82,7 +82,7 @@ app.post('/api/auth/register', (req, res) => {
     id,
     username: username.trim(),
     passwordHash,
-    avatar: avatar || '♠️',
+    avatar: avatar || 'spade',
     isGuest: false,
     gamesPlayed: 0,
     gamesWon: 0,
@@ -147,7 +147,7 @@ io.on('connection', (socket) => {
       playerName || 'Player',
       roomName,
       fillBots !== false,
-      avatar || '👤'
+      avatar || 'spade'
     );
 
     if (error) {
@@ -169,7 +169,7 @@ io.on('connection', (socket) => {
       playerId,
       socket.id,
       playerName || 'Player',
-      avatar || '👤'
+      avatar || 'spade'
     );
 
     if (error || !room) {

@@ -26,7 +26,7 @@ export class RoomManager {
     playerName: string,
     roomName: string,
     fillBots = true,
-    avatar = '👤'
+    avatar = 'user'
   ): { room: GameRoom; error?: string } {
     let code = this.generateCode();
     while (this.rooms.has(code)) {
@@ -51,7 +51,7 @@ export class RoomManager {
     playerId: string,
     socketId: string,
     playerName: string,
-    avatar = '👤'
+    avatar = 'user'
   ): { room?: GameRoom; error?: string } {
     const upperCode = roomCode.trim().toUpperCase();
     const room = this.rooms.get(upperCode);
