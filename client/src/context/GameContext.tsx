@@ -12,6 +12,7 @@ import { sortCardsByBigTwo, sortCardsBySuit } from '@shared/deck';
 import { findLegalPlays } from '@shared/ai';
 import { sound } from '../utils/audio';
 import { Language, translations } from '../utils/i18n';
+import { SERVER_URL, getApiUrl } from '../config';
 
 export interface UserProfile {
   id: string;
@@ -93,7 +94,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Load or generate guest account on mount
   useEffect(() => {
     if (!user) {
-      fetch('/api/auth/guest', {
+      fetch(getApiUrl('/api/auth/guest'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({}),
@@ -122,7 +123,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     if (!user) return;
 
-    const s: Socket<ServerToClientEvents, ClientToServerEvents> = io({
+    const s: Socket<ServerToClientEvents, ClientToServerEvents> = io(SERVER_URL || undefined, {
       auth: {
         playerId: user.id,
         playerName: user.username,

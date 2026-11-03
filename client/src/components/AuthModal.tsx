@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { X, Upload, Shield, LogIn, UserPlus, Check } from 'lucide-react';
 import { useGame, UserProfile } from '../context/GameContext';
 import { AvatarIcon } from './AvatarIcon';
+import { getApiUrl } from '../config';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -62,7 +63,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     e.preventDefault();
     setAuthError(null);
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch(getApiUrl('/api/auth/register'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -87,7 +88,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     e.preventDefault();
     setAuthError(null);
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(getApiUrl('/api/auth/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

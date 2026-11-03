@@ -20,6 +20,7 @@ import {
 import { useGame } from '../context/GameContext';
 import { AvatarIcon } from './AvatarIcon';
 import { AuthModal } from './AuthModal';
+import { getApiUrl } from '../config';
 
 interface LobbyProps {
   onOpenRules: () => void;
@@ -74,14 +75,14 @@ export const Lobby: React.FC<LobbyProps> = ({ onOpenRules }) => {
   };
 
   const fetchRooms = () => {
-    fetch('/api/rooms')
+    fetch(getApiUrl('/api/rooms'))
       .then((res) => res.json())
       .then((data) => setRooms(data))
       .catch(() => {});
   };
 
   const fetchLeaderboard = () => {
-    fetch('/api/leaderboard')
+    fetch(getApiUrl('/api/leaderboard'))
       .then((res) => res.json())
       .then((data) => setLeaderboard(data))
       .catch(() => {});

@@ -52,8 +52,44 @@ A professional, real-time multiplayer implementation of the authentic Cambodian 
 
 - **Frontend:** React 19, TypeScript, Vite, Tailwind CSS, Lucide Icons, Canvas Confetti.
 - **Backend:** Node.js, Express, Socket.io, TypeScript.
-- **Database:** Local transaction-safe JSON database with user profiles, match histories, and leaderboards.
+- **Database:** Dual-mode architecture: Neon Serverless PostgreSQL with auto-provisioning schema for cloud hosting, and local transaction-safe JSON storage on Drive D for offline development.
 - **Testing:** Node.js native test runner (`node:test`, `tsx`) with 14 automated unit, game-logic, and multiplayer integration test suites.
+- **Deployment & Hosting:** Vercel (Frontend & PWA), Render (Backend & WebSockets), Neon (Serverless Postgres).
+
+---
+
+## Production Cloud Hosting Guide (Vercel + Render + Neon)
+
+### 1. Database: Neon (Serverless Postgres)
+1. Create a free PostgreSQL database at [neon.tech](https://neon.tech).
+2. Copy your connection string from the Neon Console:
+   ```text
+   postgresql://[user]:[password]@[endpoint].neon.tech/[dbname]?sslmode=require
+   ```
+3. Set this value as `DATABASE_URL` in your Render backend service.
+   *(Note: The server automatically runs idempotent DDL migrations on boot to create `users`, `rooms`, and `matches` tables).*
+
+### 2. Backend: Render (Node.js & WebSockets)
+1. Connect your GitHub repository `BigTwo_KhmerGame` to [render.com](https://render.com).
+2. Create a new **Web Service** (or use the included Blueprint `render.yaml`):
+   - **Environment:** Node
+   - **Build Command:** `npm --prefix server install && npm --prefix server run build`
+   - **Start Command:** `node server/dist/server/src/server.js`
+   - **Health Check Path:** `/api/health`
+3. Configure Environment Variables in Render:
+   - `NODE_ENV`: `production`
+   - `PORT`: `10000` (Render default)
+   - `DATABASE_URL`: `postgresql://...` (your Neon connection string)
+   - `CLIENT_ORIGIN`: `https://your-vercel-domain.vercel.app` (your Vercel frontend URL)
+
+### 3. Frontend: Vercel (Vite SPA & PWA)
+1. Import your GitHub repository `BigTwo_KhmerGame` into [vercel.com](https://vercel.com).
+2. Select **Vite** framework preset with `vercel.json` included in repository root.
+   - **Build Command:** `npm --prefix client run build`
+   - **Output Directory:** `client/dist`
+3. Configure Environment Variable in Vercel:
+   - `VITE_SERVER_URL`: `https://your-render-backend.onrender.com` (the public URL from Render)
+4. Deploy! Vercel handles global edge CDN caching and PWA service worker delivery.
 
 ---
 

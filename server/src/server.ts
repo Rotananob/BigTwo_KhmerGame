@@ -4,24 +4,37 @@ import http from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import path from 'path';
+import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { ClientToServerEvents, ServerToClientEvents } from '../../shared/types';
 import { RoomManager } from './game/RoomManager';
 import { db, UserRecord } from './db/database';
 
+dotenv.config();
+
 const app = express();
 const server = http.createServer(app);
 
 const PORT = process.env.PORT || 3001;
+const rawOrigins = process.env.CLIENT_ORIGIN;
+const clientOrigins = rawOrigins && rawOrigins.trim() !== '*'
+  ? rawOrigins.split(',').map((o) => o.trim())
+  : '*';
 
-app.use(cors());
+app.use(
+  cors({
+    origin: clientOrigins,
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 const io = new Server<ClientToServerEvents, ServerToClientEvents>(server, {
   cors: {
-    origin: '*',
+    origin: clientOrigins,
     methods: ['GET', 'POST'],
+    credentials: true,
   },
 });
 

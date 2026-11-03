@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: tienlen-khmer-backend
+    runtime: node
+    plan: starter
+    region: oregon
+    buildCommand: npm --prefix server install && npm --prefix server run build
+    startCommand: node server/dist/server/src/server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: CLIENT_ORIGIN
+        sync: false
+      - key: DATABASE_URL
+        sync: false
