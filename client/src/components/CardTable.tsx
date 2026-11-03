@@ -16,6 +16,7 @@ import {
   Globe,
   MessageSquare,
   Send,
+  Share2,
 } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 import { CardView } from './CardView';
@@ -69,7 +70,7 @@ export const CardTable: React.FC<CardTableProps> = ({ onOpenRules }) => {
     setTimeout(() => setLocalToast(null), 2500);
   };
 
-  const cycleCombinations = (category: 'PAIR' | 'TRIPLE' | 'FIVE') => {
+  const cycleCombinations = (category: 'PAIR' | 'TRIPLE' | 'STRAIGHT' | 'BOMB') => {
     const candidates = generateCandidateCombinations(myHand);
     let filtered: typeof candidates = [];
 
@@ -85,10 +86,21 @@ export const CardTable: React.FC<CardTableProps> = ({ onOpenRules }) => {
         showLocalToast(t.noTriplesInHand);
         return;
       }
-    } else if (category === 'FIVE') {
-      filtered = candidates.filter((c) => c.cards.length === 5);
+    } else if (category === 'STRAIGHT') {
+      filtered = candidates.filter((c) => c.type === 'STRAIGHT');
       if (filtered.length === 0) {
-        showLocalToast(t.noFiveCardsInHand);
+        showLocalToast(t.noStraightsInHand);
+        return;
+      }
+    } else if (category === 'BOMB') {
+      filtered = candidates.filter(
+        (c) =>
+          c.type === 'FOUR_OF_A_KIND' ||
+          c.type === 'THREE_CONSECUTIVE_PAIRS' ||
+          c.type === 'FOUR_CONSECUTIVE_PAIRS'
+      );
+      if (filtered.length === 0) {
+        showLocalToast(t.noBombsInHand);
         return;
       }
     }
@@ -97,6 +109,29 @@ export const CardTable: React.FC<CardTableProps> = ({ onOpenRules }) => {
     setCombCycle({ type: category, index: nextIndex });
     selectCards(filtered[nextIndex].cards.map((c) => c.id));
     sound.playCardSelect();
+  };
+
+  const inviteFriends = async () => {
+    if (!gameState?.roomCode) return;
+    const shareUrl = `${window.location.origin}/?join=${gameState.roomCode}`;
+    const shareData = {
+      title: lang === 'km' ? 'ចូលលេងបៀរ ទៀងឡែន (Tien Len) ជាមួយខ្ញុំ!' : 'Join my Tien Len Game!',
+      text:
+        lang === 'km'
+          ? `ចូលលេងបៀរ ទៀងឡែន តុលេខ ${gameState.roomCode} ជាមួយខ្ញុំឥឡូវនេះ!`
+          : `Join my Tien Len card table #${gameState.roomCode}!`,
+      url: shareUrl,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (err) {}
+    }
+
+    navigator.clipboard.writeText(shareUrl);
+    showLocalToast(t.inviteCopied);
   };
 
   const copyRoomCode = () => {
@@ -182,6 +217,14 @@ export const CardTable: React.FC<CardTableProps> = ({ onOpenRules }) => {
           >
             <span>{gameState.roomCode}</span>
             {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+          </button>
+          <button
+            onClick={inviteFriends}
+            className="flex items-center space-x-1 px-2.5 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold transition-all shadow-xs"
+            title={t.inviteFriends}
+          >
+            <Share2 className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{t.inviteFriends}</span>
           </button>
           <span className="hidden sm:inline-block text-xs px-2 py-0.5 rounded-lg bg-slate-800 text-slate-400 border border-slate-700 font-medium">
             {t.round} {gameState.roundNumber}
@@ -289,6 +332,14 @@ export const CardTable: React.FC<CardTableProps> = ({ onOpenRules }) => {
                   </p>
 
                   <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+                    <button
+                      onClick={inviteFriends}
+                      className="px-4 py-2 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center space-x-1.5 transition-all shadow active:scale-95"
+                    >
+                      <Share2 className="w-4 h-4" />
+                      <span>{t.inviteFriends}</span>
+                    </button>
+
                     <button
                       onClick={toggleReady}
                       className="px-4 py-2 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center space-x-1.5 transition-all shadow"
@@ -504,11 +555,18 @@ export const CardTable: React.FC<CardTableProps> = ({ onOpenRules }) => {
               {t.filterTriples}
             </button>
             <button
-              onClick={() => cycleCombinations('FIVE')}
+              onClick={() => cycleCombinations('STRAIGHT')}
               className="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] text-amber-300 border border-slate-700 font-semibold transition-all active:scale-95"
-              title="Cycle 5-Card hands"
+              title="Cycle Straights (3-12 cards) in hand"
             >
-              {t.filterFiveCard}
+              {t.filterStraight}
+            </button>
+            <button
+              onClick={() => cycleCombinations('BOMB')}
+              className="px-2 py-0.5 rounded-lg bg-rose-950/60 hover:bg-rose-900/80 text-[11px] text-rose-300 border border-rose-500/40 font-semibold transition-all active:scale-95"
+              title="Cycle Bombs (Four of a Kind / Consecutive Pairs)"
+            >
+              {t.filterBomb}
             </button>
             <button
               onClick={toggleSort}

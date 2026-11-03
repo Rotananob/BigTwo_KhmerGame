@@ -234,12 +234,17 @@ export class GameRoom {
     }
 
     this.status = 'PLAYING';
-    this.currentTurnSeat = deal.firstTurnSeatIndex;
+    if (this.roundNumber > 1 && this.winnerSeatIndex !== null && this.seats[this.winnerSeatIndex]) {
+      this.currentTurnSeat = this.winnerSeatIndex;
+      this.isFirstTrickOfGame = false;
+    } else {
+      this.currentTurnSeat = deal.firstTurnSeatIndex;
+      this.isFirstTrickOfGame = true;
+    }
     this.lastPlay = null;
     this.trickPlays = [];
     this.consecutivePasses = 0;
     this.isFreeLead = true;
-    this.isFirstTrickOfGame = true;
     this.winnerSeatIndex = null;
     this.roundSummary = undefined;
 
@@ -339,11 +344,11 @@ export class GameRoom {
 
   private executePass(player: RoomPlayer): { success: boolean; error?: string } {
     if (this.isFreeLead || !this.lastPlay) {
-      return { success: false, error: 'You have free lead and cannot pass. You must lead a combination.' };
+      return { success: false, error: 'អ្នកមានសិទ្ធិចេញបៀរមុន (Free Lead) មិនអាចបោះវេនបានទេ (Cannot pass on free lead).' };
     }
 
     if (this.isFirstTrickOfGame) {
-      return { success: false, error: 'Cannot pass on the very first trick of the game.' };
+      return { success: false, error: 'មិនអាចបោះវេនក្នុងជុំទីមួយនៃហ្គេមបានទេ (Cannot pass on the very first trick).' };
     }
 
     this.clearTimers();
@@ -357,45 +362,43 @@ export class GameRoom {
       seatIndex: player.seatIndex,
     });
 
-    // 3 passes in a row = trick ends!
-    if (this.consecutivePasses >= 3) {
-      const trickWinnerSeat = this.lastPlay.seatIndex;
-      const winnerName = this.lastPlay.playerName;
-
-      this.io.to(this.code).emit('trick_cleared', {
-        winnerSeatIndex: trickWinnerSeat,
-        message: `${winnerName} won the trick! Table cleared.`,
-      });
-
-      // Clear table
-      this.lastPlay = null;
-      this.trickPlays = [];
-      this.consecutivePasses = 0;
-      this.isFreeLead = true;
-      this.currentTurnSeat = trickWinnerSeat;
-
-      for (const seat of this.seats) {
-        if (seat) seat.hasPassed = false;
-      }
-
-      this.broadcastState();
-
-      // Check if winner is bot or human
-      const winnerPlayer = this.seats[trickWinnerSeat];
-      if (winnerPlayer && winnerPlayer.isBot) {
-        this.turnDeadline = null;
-        this.broadcastState();
-        this.scheduleBotTurn();
-      } else if (winnerPlayer) {
-        this.scheduleHumanTurn();
-      } else {
-        this.broadcastState();
-      }
-      return { success: true };
-    }
-
     this.advanceTurn();
     return { success: true };
+  }
+
+  private clearTrickAndAwardLead(trickWinnerSeat: number): void {
+    const winnerName = this.seats[trickWinnerSeat]?.name || 'Player';
+
+    this.io.to(this.code).emit('trick_cleared', {
+      winnerSeatIndex: trickWinnerSeat,
+      message: `${winnerName} បានឈ្នះជុំនេះ! តុត្រូវបានលាងសម្អាត (Table cleared)`,
+    });
+
+    this.lastPlay = null;
+    this.trickPlays = [];
+    this.consecutivePasses = 0;
+    this.isFreeLead = true;
+    this.currentTurnSeat = trickWinnerSeat;
+
+    // Reset all hasPassed flags for the new trick
+    for (const seat of this.seats) {
+      if (seat) seat.hasPassed = false;
+    }
+
+    this.broadcastState();
+    this.sendIndividualHands();
+
+    const winnerPlayer = this.seats[trickWinnerSeat];
+    if (winnerPlayer && winnerPlayer.isBot) {
+      this.turnDeadline = null;
+      this.broadcastState();
+      this.scheduleBotTurn();
+    } else if (winnerPlayer) {
+      this.scheduleHumanTurn();
+    } else {
+      this.turnDeadline = null;
+      this.broadcastState();
+    }
   }
 
   private clearTimers(): void {
@@ -446,7 +449,38 @@ export class GameRoom {
 
   private advanceTurn(): void {
     this.clearTimers();
-    this.currentTurnSeat = (this.currentTurnSeat + 1) % 4;
+
+    // In Tien Len: Count how many players have NOT passed in this trick
+    const activeNonPassed = this.seats.filter(
+      (s) => s !== null && s.cards.length > 0 && !s.hasPassed
+    );
+
+    // If only 1 player (or none) has not passed, the trick has ended!
+    if (activeNonPassed.length <= 1 && this.lastPlay) {
+      this.clearTrickAndAwardLead(this.lastPlay.seatIndex);
+      return;
+    }
+
+    // Advance to next active seat that hasn't passed and still has cards
+    let nextSeat = (this.currentTurnSeat + 1) % 4;
+    let attempts = 0;
+    while (attempts < 4) {
+      const candidate = this.seats[nextSeat];
+      if (candidate && candidate.cards.length > 0 && !candidate.hasPassed) {
+        break;
+      }
+      nextSeat = (nextSeat + 1) % 4;
+      attempts++;
+    }
+
+    if (attempts >= 4) {
+      const trickWinnerSeat = this.lastPlay ? this.lastPlay.seatIndex : this.currentTurnSeat;
+      this.clearTrickAndAwardLead(trickWinnerSeat);
+      return;
+    }
+
+    this.currentTurnSeat = nextSeat;
+    this.broadcastState();
     this.sendIndividualHands();
 
     const nextPlayer = this.seats[this.currentTurnSeat];

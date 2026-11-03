@@ -1,6 +1,7 @@
 import { Card, Rank, Suit } from './types';
 
-export const SUITS: Suit[] = ['D', 'C', 'H', 'S']; // Diamonds < Clubs < Hearts < Spades
+// Tien Len (ទៀងឡែន): ♠ (Spades) < ♣ (Clubs) < ♦ (Diamonds) < ♥ (Hearts)
+export const SUITS: Suit[] = ['S', 'C', 'D', 'H'];
 export const RANKS: Rank[] = ['3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A', '2'];
 
 export const RANK_VALUE_MAP: Record<Rank, number> = {
@@ -20,24 +21,31 @@ export const RANK_VALUE_MAP: Record<Rank, number> = {
 };
 
 export const SUIT_VALUE_MAP: Record<Suit, number> = {
-  'D': 0, // Diamonds (Lowest)
-  'C': 1, // Clubs
-  'H': 2, // Hearts
-  'S': 3, // Spades (Highest)
+  'S': 0, // Spades / ប៊ិច / បោស (Lowest)
+  'C': 1, // Clubs / ជ្វា / ខ្វက်
+  'D': 2, // Diamonds / ការ៉ូ / ត្បូង
+  'H': 3, // Hearts / បេះដូង / ស៊ឺ (Highest)
 };
 
 export const SUIT_SYMBOLS: Record<Suit, string> = {
-  'D': '♦',
-  'C': '♣',
-  'H': '♥',
   'S': '♠',
+  'C': '♣',
+  'D': '♦',
+  'H': '♥',
 };
 
 export const SUIT_NAMES: Record<Suit, string> = {
-  'D': 'Diamonds',
-  'C': 'Clubs',
-  'H': 'Hearts',
   'S': 'Spades',
+  'C': 'Clubs',
+  'D': 'Diamonds',
+  'H': 'Hearts',
+};
+
+export const SUIT_KHMER_NAMES: Record<Suit, string> = {
+  'S': 'ប៊ិច',
+  'C': 'ជ្វា',
+  'D': 'ការ៉ូ',
+  'H': 'បេះដូង',
 };
 
 export function getCardAbsolutePower(card: Card): number {
@@ -67,9 +75,12 @@ export function shuffleDeck(deck: Card[]): Card[] {
   return shuffled;
 }
 
-export function sortCardsByBigTwo(cards: Card[]): Card[] {
+export function sortCardsByTienLen(cards: Card[]): Card[] {
   return [...cards].sort((a, b) => getCardAbsolutePower(a) - getCardAbsolutePower(b));
 }
+
+// Keep sortCardsByBigTwo as alias for backwards compatibility
+export const sortCardsByBigTwo = sortCardsByTienLen;
 
 export function sortCardsBySuit(cards: Card[]): Card[] {
   return [...cards].sort((a, b) => {
@@ -85,7 +96,7 @@ export interface DealResult {
   firstTurnSeatIndex: number;
 }
 
-export function dealBigTwoHands(): DealResult {
+export function dealTienLenHands(): DealResult {
   const deck = shuffleDeck(createStandardDeck());
   const hands: [Card[], Card[], Card[], Card[]] = [[], [], [], []];
 
@@ -95,8 +106,9 @@ export function dealBigTwoHands(): DealResult {
 
   let firstTurnSeatIndex = 0;
   for (let seat = 0; seat < 4; seat++) {
-    hands[seat] = sortCardsByBigTwo(hands[seat]);
-    if (hands[seat].some((c) => c.rank === '3' && c.suit === 'D')) {
+    hands[seat] = sortCardsByTienLen(hands[seat]);
+    // In Tien Len (ទៀងឡែន), the player with 3 of Spades (3S / ៣ ប៊ិច) goes first!
+    if (hands[seat].some((c) => c.rank === '3' && c.suit === 'S')) {
       firstTurnSeatIndex = seat;
     }
   }
@@ -106,3 +118,6 @@ export function dealBigTwoHands(): DealResult {
     firstTurnSeatIndex,
   };
 }
+
+// Keep dealBigTwoHands as alias for backwards compatibility
+export const dealBigTwoHands = dealTienLenHands;

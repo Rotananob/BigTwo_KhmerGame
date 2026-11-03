@@ -1,29 +1,28 @@
-export type Suit = 'D' | 'C' | 'H' | 'S'; // Diamonds, Clubs, Hearts, Spades
+export type Suit = 'S' | 'C' | 'D' | 'H'; // Tien Len (ទៀងឡែន): Spades (♠) < Clubs (♣) < Diamonds (♦) < Hearts (♥)
 export type Rank = '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | 'J' | 'Q' | 'K' | 'A' | '2';
 
 export interface Card {
   suit: Suit;
   rank: Rank;
-  id: string; // e.g. "3D", "10H", "2S"
+  id: string; // e.g. "3S", "10H", "2H"
 }
 
 export type CombinationType =
-  | 'SINGLE'
-  | 'PAIR'
-  | 'TRIPLE'
-  | 'STRAIGHT'
-  | 'FLUSH'
-  | 'FULL_HOUSE'
-  | 'FOUR_OF_A_KIND'
-  | 'STRAIGHT_FLUSH';
+  | 'SINGLE'                   // សន្លឹកទោល (1 card)
+  | 'PAIR'                     // គូ (2 cards)
+  | 'TRIPLE'                   // បីសន្លឹក (3 cards)
+  | 'STRAIGHT'                 // តង / សង់ហ្សង់ (3 to 12 consecutive cards, no 2 allowed)
+  | 'FOUR_OF_A_KIND'           // ចតុរង្គ / ការ៉េ (4 cards - can cut a single 2 or pair of 2s)
+  | 'THREE_CONSECUTIVE_PAIRS'  // ៣ គូជាប់គ្នា / ស៊ុីនគូ (6 cards - can cut a single 2)
+  | 'FOUR_CONSECUTIVE_PAIRS';  // ៤ គូជាប់គ្នា (8 cards - can cut single 2, pair 2, four of a kind)
 
 export interface HandCombination {
   type: CombinationType;
   cards: Card[];
+  cardCount: number;
   mainRankValue: number; // Primary rank comparison value (0..12)
-  mainSuitValue: number; // Primary suit comparison value (0..3)
-  secondaryRankValue?: number; // Optional secondary rank (e.g., kicker or pair)
-  description: string;   // Human-readable title, e.g., "Full House: 8s over Kings"
+  mainSuitValue: number; // Primary suit comparison value (0..3: S=0, C=1, D=2, H=3)
+  description: string;   // Human-readable title
 }
 
 export interface PlayerPublicInfo {

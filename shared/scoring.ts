@@ -21,12 +21,24 @@ export function calculateRoundScores(
 
     let penaltyMultiplier = 1;
     if (remainingCount >= 13) {
-      penaltyMultiplier = 3; // Shutout / Triple penalty
+      penaltyMultiplier = 3; // Shutout (កក / មិនបានចេញបៀរមួយសន្លឹកសោះ) = Triple penalty
     } else if (remainingCount >= 10) {
-      penaltyMultiplier = 2; // Double penalty
+      penaltyMultiplier = 2; // Double penalty for 10-12 cards
     }
 
-    const lossPoints = isWinner ? 0 : remainingCount * penaltyMultiplier;
+    // Trapped 2s (ស្អុយអាពីរ) penalty:
+    let trappedTwosPenalty = 0;
+    if (!isWinner) {
+      for (const card of p.remainingCards) {
+        if (card.rank === '2') {
+          // Black 2 (2♠, 2♣) = 2 pts; Red 2 (2♦, 2♥) = 4 pts
+          trappedTwosPenalty += (card.suit === 'S' || card.suit === 'C') ? 2 : 4;
+        }
+      }
+    }
+
+    const baseLoss = remainingCount * penaltyMultiplier;
+    const lossPoints = isWinner ? 0 : baseLoss + trappedTwosPenalty;
     if (!isWinner) {
       winnerGain += lossPoints;
     }

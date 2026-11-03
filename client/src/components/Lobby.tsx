@@ -91,8 +91,20 @@ export const Lobby: React.FC<LobbyProps> = ({ onOpenRules }) => {
     fetchRooms();
     fetchLeaderboard();
     const interval = setInterval(fetchRooms, 5000);
+
+    // Auto-detect invite link with ?join=ROOMCODE
+    const urlParams = new URLSearchParams(window.location.search);
+    const joinCode = urlParams.get('join');
+    if (joinCode && joinCode.trim().length > 0) {
+      const code = joinCode.trim().toUpperCase();
+      setJoinCodeInput(code);
+      if (code.length === 6) {
+        joinRoom(code);
+      }
+    }
+
     return () => clearInterval(interval);
-  }, []);
+  }, [joinRoom]);
 
   const handleStartPractice = () => {
     createRoom(lang === 'km' ? 'បន្ទប់ហាត់សម' : 'Practice Room', true);
@@ -127,7 +139,7 @@ export const Lobby: React.FC<LobbyProps> = ({ onOpenRules }) => {
             <h1 className="text-lg sm:text-xl font-extrabold tracking-tight text-white flex items-center space-x-2">
               <span>{t.appTitle}</span>
               <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30">
-                鋤大D
+                {lang === 'km' ? 'ទៀងឡែន ១៣ សន្លឹក' : 'Tien Len 13 Cards'}
               </span>
             </h1>
             <p className="text-xs text-slate-400 hidden sm:block">

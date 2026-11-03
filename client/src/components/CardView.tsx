@@ -50,7 +50,7 @@ export const CardView: React.FC<CardViewProps> = ({
 
   const suitColor = isRed ? 'text-red-600' : 'text-slate-900';
   const isBigTwo = card.rank === '2';
-  const is3D = card.rank === '3' && card.suit === 'D';
+  const isStarter = card.rank === '3' && card.suit === 'S'; // Tien Len: 3 of Spades (៣ ប៊ិច)
 
   return (
     <div
@@ -63,7 +63,7 @@ export const CardView: React.FC<CardViewProps> = ({
         ${selected ? '-translate-y-5 sm:-translate-y-6 ring-2 ring-yellow-400 shadow-xl z-20 bg-amber-50/50' : 'hover:-translate-y-1.5'}
         ${dimmed ? 'opacity-40 grayscale-[40%]' : 'opacity-100'}
         ${highlight ? 'ring-2 ring-emerald-400 ring-offset-1' : ''}
-        ${is3D ? 'border-amber-400/80 ring-1 ring-amber-300' : ''}
+        ${isStarter ? 'border-amber-400/80 ring-2 ring-amber-400 shadow-md' : ''}
         ${className}
       `}
       title={`${card.rank} of ${SUIT_NAMES[card.suit]}`}
@@ -81,17 +81,17 @@ export const CardView: React.FC<CardViewProps> = ({
             <span className={`text-xl sm:text-3xl font-black ${suitColor}`}>
               {SUIT_SYMBOLS[card.suit]}
             </span>
-            <span className="text-[9px] font-extrabold uppercase tracking-widest text-amber-500 bg-amber-100/90 px-1 rounded-sm shadow-sm">
-              BIG 2
+            <span className="text-[9px] font-extrabold uppercase tracking-widest text-amber-600 bg-amber-100/90 px-1 rounded-sm shadow-xs">
+              អាពីរ (2)
             </span>
           </div>
-        ) : is3D ? (
+        ) : isStarter ? (
           <div className="flex flex-col items-center">
-            <span className="text-2xl sm:text-3xl text-red-600 animate-pulse">
-              ♦
+            <span className="text-2xl sm:text-3xl text-slate-900 animate-pulse">
+              ♠
             </span>
-            <span className="text-[8px] font-bold uppercase text-amber-700 bg-amber-200/80 px-1 rounded-sm">
-              STARTER
+            <span className="text-[8px] font-bold uppercase text-amber-800 bg-amber-300 px-1 rounded-sm shadow-xs">
+              STARTER 3♠
             </span>
           </div>
         ) : card.rank === 'A' ? (

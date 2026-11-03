@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Award, ShieldAlert, Sparkles, HelpCircle } from 'lucide-react';
+import { X, Award, ShieldAlert, Sparkles, HelpCircle, Swords } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 
 interface RulesModalProps {
@@ -20,7 +20,7 @@ export const RulesModal: React.FC<RulesModalProps> = ({ isOpen, onClose }) => {
           <div className="flex items-center space-x-2">
             <HelpCircle className="w-6 h-6 text-amber-400" />
             <h2 className="text-lg sm:text-xl font-bold text-white">
-              {lang === 'km' ? 'ច្បាប់លេងបៀរ ធំពីរ (Big Two / 鋤大D)' : 'How To Play Big Two (鋤大D)'}
+              {lang === 'km' ? 'ច្បាប់លេងបៀរ ទៀងឡែន (Tien Len / Thirteen)' : 'How To Play Tien Len (Thirteen)'}
             </h2>
           </div>
           <button
@@ -41,15 +41,15 @@ export const RulesModal: React.FC<RulesModalProps> = ({ isOpen, onClose }) => {
             </h3>
             <p className="leading-relaxed text-xs sm:text-sm">
               {lang === 'km'
-                ? 'ល្បែងបៀរ ធំពីរ លេងជាមួយបៀរស្តង់ដារ ៥២ សន្លឹកក្នុងចំណោមអ្នកលេង ៤ នាក់ (ចែក ១៣ សន្លឹកម្នាក់)។ អ្នកដែលទម្លាក់បៀរអស់ពីដៃមុនគេ គឺជាអ្នកឈ្នះក្នុងជុំនោះ។'
-                : 'Big Two is played with a standard 52-card deck among 4 players (13 cards dealt to each). The first player to shed all cards wins the round.'}
+                ? 'ល្បែងបៀរ ទៀងឡែន (Tiến Lên / Thirteen) ប្រើប្រាស់សន្លឹកបៀរស្តង់ដារ ៥២ សន្លឹក ក្នុងចំណោមអ្នកលេង ៤ នាក់ (ចែក ១៣ សន្លឹកម្នាក់)។ អ្នកដែលទម្លាក់បៀរអស់ពីដៃមុនគេ គឺជាអ្នកឈ្នះ (បានលេខ ១)។'
+                : 'Tien Len (Thirteen) is played with a standard 52-card deck among 4 players (13 cards dealt to each). The first player to shed all cards wins the round.'}
             </p>
           </div>
 
-          {/* Section 2: Card Rankings */}
+          {/* Section 2: Card & Suit Hierarchy */}
           <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/80">
             <h3 className="text-base font-bold text-white mb-2">
-              {lang === 'km' ? '២. លំដាប់ថ្នាក់តម្លៃបៀរ និងផ្កាបៀរ' : '2. Card & Suit Hierarchy'}
+              {lang === 'km' ? '២. លំដាប់ថ្នាក់តម្លៃបៀរ និងផ្កាបៀរ (ទៀងឡែន)' : '2. Card & Suit Hierarchy'}
             </h3>
             <div className="space-y-3">
               <div>
@@ -57,27 +57,27 @@ export const RulesModal: React.FC<RulesModalProps> = ({ isOpen, onClose }) => {
                   {lang === 'km' ? 'តម្លៃលេខបៀរ (ពីតូចទៅធំ):' : 'Number Ranks (Low to High):'}
                 </span>
                 <div className="font-mono text-amber-300 font-bold text-xs sm:text-sm mt-0.5">
-                  3 &lt; 4 &lt; 5 &lt; 6 &lt; 7 &lt; 8 &lt; 9 &lt; 10 &lt; J &lt; Q &lt; K &lt; A &lt; <span className="text-yellow-400 font-extrabold">2 (ធំជាងគេបង្អស់)</span>
+                  3 &lt; 4 &lt; 5 &lt; 6 &lt; 7 &lt; 8 &lt; 9 &lt; 10 &lt; J &lt; Q &lt; K &lt; A &lt; <span className="text-yellow-400 font-extrabold">2 (អាពីរ ធំជាងគេបង្អស់)</span>
                 </div>
               </div>
               <div>
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">
-                  {lang === 'km' ? 'តម្លៃផ្កាបៀរ (ពីតូចទៅធំ):' : 'Suit Ranks (Low to High):'}
+                  {lang === 'km' ? 'តម្លៃផ្កាបៀរ ទៀងឡែន (ពីតូចទៅធំ):' : 'Tien Len Suit Order (Low to High):'}
                 </span>
                 <div className="font-mono font-bold text-xs sm:text-sm mt-0.5 flex flex-wrap items-center gap-1.5 sm:gap-2">
-                  <span className="text-red-400">♦ ការ៉ូ (Diamonds - តូចបំផុត)</span>
+                  <span className="text-slate-100 font-bold">♠ ប៊ិច (Spades - តូចបំផុត)</span>
                   <span>&lt;</span>
                   <span className="text-slate-300">♣ ជ្វា (Clubs)</span>
                   <span>&lt;</span>
-                  <span className="text-red-400">♥ បេះដូង (Hearts)</span>
+                  <span className="text-red-400">♦ ការ៉ូ (Diamonds)</span>
                   <span>&lt;</span>
-                  <span className="text-slate-100 font-extrabold">♠ ប៊ិច (Spades - ធំបំផុត)</span>
+                  <span className="text-red-500 font-extrabold">♥ បេះដូង (Hearts - ធំបំផុត)</span>
                 </div>
               </div>
               <div className="text-xs text-slate-400 pt-1 border-t border-slate-700/50">
-                • {lang === 'km' ? 'សន្លឹកតូចបំផុតក្នុងហ្គេម:' : 'Lowest single card:'} <strong className="text-red-400">♦3 (៣ ការ៉ូ)</strong>
+                • {lang === 'km' ? 'សន្លឹកតូចបំផុតក្នុងហ្គេម:' : 'Lowest single card:'} <strong className="text-slate-200">♠3 (៣ ប៊ិច)</strong>
                 <br />
-                • {lang === 'km' ? 'សន្លឹកធំបំផុតក្នុងហ្គេម:' : 'Highest single card:'} <strong className="text-white">♠2 (២ ប៊ិច)</strong>
+                • {lang === 'km' ? 'សន្លឹកធំបំផុតក្នុងហ្គេម:' : 'Highest single card:'} <strong className="text-red-400">♥2 (២ បេះដូង)</strong>
               </div>
             </div>
           </div>
@@ -86,12 +86,12 @@ export const RulesModal: React.FC<RulesModalProps> = ({ isOpen, onClose }) => {
           <div>
             <h3 className="text-base font-bold text-amber-400 mb-1 flex items-center space-x-2">
               <Award className="w-4 h-4" />
-              <span>{lang === 'km' ? '៣. វេនចេញបៀរដំបូងគេ' : '3. The First Trick of the Game'}</span>
+              <span>{lang === 'km' ? '៣. វេនចេញបៀរដំបូងគេ' : '3. First Trick of the Game'}</span>
             </h3>
             <p className="leading-relaxed text-xs sm:text-sm">
               {lang === 'km'
-                ? 'ហ្គេមចាប់ផ្ដើមដោយអ្នកដែលកាន់សន្លឹក ៣ ការ៉ូ (♦3) ត្រូវចេញមុនគេ។ ការចេញបៀរលើកដំបូងនេះ ត្រូវតែមានវត្តមានសន្លឹក ♦3 ជានិច្ច (អាចចេញជា សន្លឹកទោល, គូ, បីសន្លឹក ឬក្បាច់ ៥ សន្លឹកដែលមាន ♦3)។'
-                : 'The game always begins with whoever holds the 3 of Diamonds (♦3). Their opening play must include the ♦3 (can be played as a single ♦3, or inside a pair, triple, or 5-card combination).'}
+                ? 'ក្នុងជុំទីមួយនៃហ្គេម អ្នកដែលកាន់សន្លឹក ៣ ប៊ិច (♠3) ត្រូវតែចេញមុនគេ ហើយការចេញនោះត្រូវតែមានវត្តមានសន្លឹក ♠3 (អាចជាទោល, គូ, បីសន្លឹក ឬតង)។ ក្នុងជុំបន្តបន្ទាប់ អ្នកដែលឈ្នះជុំមុន គឺជាអ្នកបានសិទ្ធិចេញមុនគេ។'
+                : 'In round 1, the player holding the 3 of Spades (♠3) must lead, and their opening move must contain the ♠3. In subsequent rounds, the winner of the previous round leads.'}
             </p>
           </div>
 
@@ -103,7 +103,7 @@ export const RulesModal: React.FC<RulesModalProps> = ({ isOpen, onClose }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
               <div className="p-3 rounded-xl bg-slate-800 border border-slate-700">
                 <strong className="text-white">{lang === 'km' ? 'សន្លឹកទោល (Single - ១ សន្លឹក):' : 'Single (1 card):'}</strong>
-                <p className="text-slate-400 mt-0.5">{lang === 'km' ? 'ធៀបតាមលេខបៀរ រួចធៀបតាមផ្កា។' : 'Beat by higher rank; tie-broken by suit.'}</p>
+                <p className="text-slate-400 mt-0.5">{lang === 'km' ? 'ធៀបតាមលេខបៀរ រួចធៀបតាមផ្កា (♠ < ♣ < ♦ < ♥)។' : 'Rank first, then suit (♠ < ♣ < ♦ < ♥).'}</p>
               </div>
               <div className="p-3 rounded-xl bg-slate-800 border border-slate-700">
                 <strong className="text-white">{lang === 'km' ? 'គូ (Pair - ២ សន្លឹក):' : 'Pair (2 cards):'}</strong>
@@ -111,44 +111,61 @@ export const RulesModal: React.FC<RulesModalProps> = ({ isOpen, onClose }) => {
               </div>
               <div className="p-3 rounded-xl bg-slate-800 border border-slate-700">
                 <strong className="text-white">{lang === 'km' ? 'បីសន្លឹក (Triple - ៣ សន្លឹក):' : 'Triple (3 cards):'}</strong>
-                <p className="text-slate-400 mt-0.5">{lang === 'km' ? 'បៀរលេខដូចគ្នា ៣ សន្លឹក។ ធៀបតាមតម្លៃលេខបៀរ។' : 'Three cards of equal rank. Ranked by numeric value.'}</p>
+                <p className="text-slate-400 mt-0.5">{lang === 'km' ? 'បៀរលេខដូចគ្នា ៣ សន្លឹក។' : 'Three cards of equal rank.'}</p>
               </div>
               <div className="p-3 rounded-xl bg-slate-800 border border-slate-700">
-                <strong className="text-white">{lang === 'km' ? 'ក្បាច់ ៥ សន្លឹក (Poker Hands):' : '5-Card Poker Hands:'}</strong>
-                <ol className="list-decimal pl-4 mt-1 space-y-0.5 text-slate-300">
-                  <li>{lang === 'km' ? 'បៀរតម្រៀប (Straight - ៥ សន្លឹកបន្តបន្ទាប់)' : 'Straight (5 in sequence)'}</li>
-                  <li>{lang === 'km' ? 'បៀរផ្កាដូច (Flush - ៥ សន្លឹកផ្កាដូចគ្នា)' : 'Flush (5 same suit)'}</li>
-                  <li>{lang === 'km' ? 'គូបី (Full House - បីដូចគ្នា + គូ)' : 'Full House (3 of a kind + pair)'}</li>
-                  <li>{lang === 'km' ? 'ការ៉េ (Four of a Kind - ៤ ដូចគ្នា + ១ សន្លឹក)' : 'Four of a Kind (Bomb + 1 kicker)'}</li>
-                  <li>{lang === 'km' ? 'តម្រៀបផ្កាដូច (Straight Flush - ធំបំផុត)' : 'Straight Flush (highest)'}</li>
-                </ol>
+                <strong className="text-white">{lang === 'km' ? 'តង / សង់ហ្សង់ (Straight - ៣ ដល់ ១២ សន្លឹក):' : 'Straight (3 to 12 cards):'}</strong>
+                <p className="text-slate-400 mt-0.5">{lang === 'km' ? 'បៀរតម្រៀបបន្តបន្ទាប់គ្នា (ឧ. 3-4-5, 7-8-9-10)។ គ្មានសន្លឹក ២ ឡើយ! ត្រូវតែស៊ីដោយតងដែលមានចំនួនសន្លឹកស្មើគ្នា។' : 'Consecutive rank sequence (e.g. 3-4-5). No 2 allowed! Must beat with same card count.'}</p>
               </div>
             </div>
           </div>
 
-          {/* Section 5: Passing & Free Lead */}
+          {/* Section 5: Special Cuts / Bombs */}
+          <div className="p-4 rounded-2xl bg-amber-950/40 border border-amber-500/50">
+            <h3 className="text-base font-bold text-amber-300 mb-2 flex items-center space-x-2">
+              <Swords className="w-4 h-4 text-amber-400" />
+              <span>{lang === 'km' ? '៥. ក្បាច់កាប់អាពីរ (Special Cuts / Bombs)' : '5. Cutting The 2s (Bombs)'}</span>
+            </h3>
+            <div className="space-y-2 text-xs text-slate-300">
+              <div className="p-2 rounded-lg bg-black/40 border border-amber-500/30">
+                <strong className="text-amber-400">{lang === 'km' ? '៣ គូជាប់គ្នា (3 Consecutive Pairs):' : '3 Consecutive Pairs:'}</strong>
+                <p>{lang === 'km' ? 'ឧ. 4-4, 5-5, 6-6 (៦ សន្លឹក) អាចកាប់សន្លឹក ២ មួយគ្រាប់បាន!' : 'e.g. 4-4, 5-5, 6-6 (6 cards). Can cut any Single 2!'}</p>
+              </div>
+              <div className="p-2 rounded-lg bg-black/40 border border-amber-500/30">
+                <strong className="text-amber-400">{lang === 'km' ? 'ការ៉េ / ចតុរង្គ (Four of a Kind):' : 'Four of a Kind:'}</strong>
+                <p>{lang === 'km' ? 'ឧ. 8-8-8-8 (៤ សន្លឹក) អាចកាប់សន្លឹក ២ មួយគ្រាប់ ឬ គូ ២ បាន!' : 'e.g. 8-8-8-8 (4 cards). Can cut a Single 2 or a Pair of 2s!'}</p>
+              </div>
+              <div className="p-2 rounded-lg bg-black/40 border border-amber-500/30">
+                <strong className="text-amber-400">{lang === 'km' ? '៤ គូជាប់គ្នា (4 Consecutive Pairs):' : '4 Consecutive Pairs:'}</strong>
+                <p>{lang === 'km' ? 'ឧ. 6-6, 7-7, 8-8, 9-9 (៨ សន្លឹក) អាចកាប់បានទាំង ២ មួយ, គូ ២, ការ៉េ, និង ៣ គូជាប់គ្នា!' : 'Can cut any 2, Pair of 2s, Four of a Kind, or 3 Consecutive Pairs!'}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 6: Passing & Sitting Out */}
           <div>
             <h3 className="text-base font-bold text-amber-400 mb-1">
-              {lang === 'km' ? '៥. ការរំលង និងច្បាប់រំលង ៣ នាក់ជាប់គ្នា' : '5. Passing & The "3 Consecutive Passes" Rule'}
+              {lang === 'km' ? '៦. ការបោះវេន (រំលងហើយ ត្រូវរង់ចាំដល់ចប់ជុំ)' : '6. Passing & The Sitting Out Rule'}
             </h3>
             <p className="leading-relaxed text-xs sm:text-sm">
               {lang === 'km'
-                ? 'នៅពេលដល់វេន អ្នកត្រូវទម្លាក់ក្បាច់បៀរប្រភេទដូចគ្នា និងចំនួនសន្លឹកដូចគ្នាដែលធំជាងបៀរលើតុ ឬចុច "រំលង (Pass)"។ នៅពេលមានអ្នកលេងរំលង ៣ នាក់ជាប់គ្នា តុនឹងត្រូវសម្អាត ហើយអ្នកដែលបានទម្លាក់បៀរចុងក្រោយគេ នឹងទទួលបាន "សេរីភាពទម្លាក់បៀរ (Free Lead)" ដើម្បីចេញក្បាច់បៀរណាមួយក៏បានតាមចិត្ត។'
-                : 'When following, you must play the exact same card count that beats the table, or Pass. When 3 players pass in a row, the trick ends! The table clears, and the trick winner earns a Free Lead to play any combination.'}
+                ? 'នៅពេលដល់វេន ប្រសិនបើអ្នកចុច "រំលង (Pass)" អ្នកត្រូវអង្គុយរង់ចាំដោយមិនអាចចូលរួមទម្លាក់បៀរក្នុងជុំនោះបានទៀតឡើយ។ នៅពេលអ្នកលេង ៣ នាក់ផ្សេងទៀតបានរំលងទាំងអស់ តុនឹងត្រូវលាងសម្អាត ហើយអ្នកដែលបានទម្លាក់បៀរចុងក្រោយគេ នឹងទទួលបាន "សេរីភាពទម្លាក់បៀរ (បានដៃចេញមុន)" សម្រាប់ជុំថ្មី។'
+                : 'Once you Pass during a trick, you cannot play again until that trick ends! When all opponents have passed, the table clears, and the trick winner earns a Free Lead to start a new trick with any combination.'}
             </p>
           </div>
 
-          {/* Section 6: Scoring & Penalties */}
-          <div className="p-4 rounded-2xl bg-amber-950/30 border border-amber-500/40">
-            <h3 className="text-base font-bold text-amber-300 mb-1 flex items-center space-x-2">
+          {/* Section 7: Trapped 2s Penalties */}
+          <div className="p-4 rounded-2xl bg-red-950/30 border border-red-500/40">
+            <h3 className="text-base font-bold text-red-300 mb-1 flex items-center space-x-2">
               <ShieldAlert className="w-4 h-4" />
-              <span>{lang === 'km' ? '៦. ការគិតពិន្ទុ និងការពិន័យគុណ' : '6. Scoring & Multiplier Penalties'}</span>
+              <span>{lang === 'km' ? '៧. ការគិតពិន្ទុ និងស្អុយអាពីរ' : '7. Scoring & Trapped 2s Penalties'}</span>
             </h3>
             <ul className="space-y-1 text-xs text-slate-300 list-disc pl-4">
-              <li>{lang === 'km' ? 'សន្លឹកនៅសល់ ១ ដល់ ៩: ពិន័យ ១ ពិន្ទុក្នុង ១ សន្លឹក។' : '1 to 9 cards left: 1 point penalty per card.'}</li>
+              <li>{lang === 'km' ? 'សន្លឹកនៅសល់ ១ ដល់ ៩: ១ ពិន្ទុក្នុង ១ សន្លឹក។' : '1 to 9 cards left: 1 point penalty per card.'}</li>
               <li>{lang === 'km' ? 'សន្លឹកនៅសល់ ១០ ដល់ ១២: ពិន័យគុណនឹង ២ (2x Penalty)។' : '10 to 12 cards left: Double Penalty (2x).'}</li>
-              <li>{lang === 'km' ? 'សន្លឹកនៅសល់ ១៣ (មិនទាន់បានចេញបៀរមួយសន្លឹកសោះ): ពិន័យគុណនឹង ៣ (3x Shutout) = ដក ៣៩ ពិន្ទុ!' : '13 cards left (Shutout): Triple Penalty (3x) = -39 pts!'}</li>
-              <li>{lang === 'km' ? 'អ្នកឈ្នះទទួលបានពិន្ទុសរុបទាំងអស់ដែលដកពីអ្នកចាញ់។' : 'The winner gains all penalty points surrendered by the losers.'}</li>
+              <li>{lang === 'km' ? 'សន្លឹកនៅសល់ ១៣ (កក មិនទាន់ចេញមួយសន្លឹក): ពិន័យគុណនឹង ៣ (3x Shutout)!' : '13 cards left (Shutout): Triple Penalty (3x)!'}</li>
+              <li>{lang === 'km' ? 'ស្អុយអាពីរខ្មៅ (♠2, ♣2): ពិន័យបន្ថែម ២ ពិន្ទុ។' : 'Trapped Black 2 (♠2, ♣2): +2 penalty points.'}</li>
+              <li>{lang === 'km' ? 'ស្អុយអាពីរក្រហម (♦2, ♥2): ពិន័យបន្ថែម ៤ ពិន្ទុ។' : 'Trapped Red 2 (♦2, ♥2): +4 penalty points.'}</li>
             </ul>
           </div>
         </div>
